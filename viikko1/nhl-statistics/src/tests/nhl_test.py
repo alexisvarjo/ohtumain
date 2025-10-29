@@ -1,9 +1,7 @@
 import unittest
 from statistics_service import StatisticsService
 from player import Player
-from unittest.mock import patch
-from io import BytesIO
-from player_reader import PlayerReader
+from statistics_service import SortBy
 
 
 class PlayerReaderStub:
@@ -42,9 +40,33 @@ class TestStatisticsService(unittest.TestCase):
         self.assertEqual(res[0].goals, exp[0].goals)
         self.assertEqual(res[0].assists, exp[0].assists)
 
-    def test_top(self):
-        res = self.stats.top(1)
+    def test_top_default(self):
+        res = self.stats.top(1, None)
         exp = [Player("Gretzky", "EDM", 35, 89)]
+        self.assertEqual(exp[0].name, res[0].name)
+        self.assertEqual(res[0].team, exp[0].team)
+        self.assertEqual(res[0].goals, exp[0].goals)
+        self.assertEqual(res[0].assists, exp[0].assists)
+
+    def test_top_points(self):
+        res = self.stats.top(1, SortBy.POINTS)
+        exp = [Player("Gretzky", "EDM", 35, 89)]
+        self.assertEqual(exp[0].name, res[0].name)
+        self.assertEqual(res[0].team, exp[0].team)
+        self.assertEqual(res[0].goals, exp[0].goals)
+        self.assertEqual(res[0].assists, exp[0].assists)
+
+    def test_top_assists(self):
+        res = self.stats.top(1, SortBy.ASSISTS)
+        exp = [Player("Gretzky", "EDM", 35, 89)]
+        self.assertEqual(exp[0].name, res[0].name)
+        self.assertEqual(res[0].team, exp[0].team)
+        self.assertEqual(res[0].goals, exp[0].goals)
+        self.assertEqual(res[0].assists, exp[0].assists)
+
+    def test_top_goals(self):
+        res = self.stats.top(1, SortBy.GOALS)
+        exp = [Player("Lemieux", "PIT", 45, 54)]
         self.assertEqual(exp[0].name, res[0].name)
         self.assertEqual(res[0].team, exp[0].team)
         self.assertEqual(res[0].goals, exp[0].goals)
