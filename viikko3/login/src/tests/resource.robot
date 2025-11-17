@@ -36,4 +36,3 @@ Main Page Should Be Open
 
 Go To Login Page
     Go To  ${LOGIN_URL}
-

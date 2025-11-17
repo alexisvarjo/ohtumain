@@ -12,7 +12,10 @@ class AppLibrary:
         data = {
             "username": username,
             "password": password,
-            "password_confirmation": password
+            "password_confirmation": password,
         }
 
         requests.post(f"{self._base_url}/register", data=data)
+
+    def go_to_starting_page(self):
+        requests.get(f"{self._base_url}")
