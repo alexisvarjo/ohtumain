@@ -1,7 +1,5 @@
 from entities.user import User
-from repositories.user_repository import (
-    user_repository as default_user_repository
-)
+from repositories.user_repository import user_repository as default_user_repository
 
 
 class UserInputError(Exception):
@@ -30,9 +28,7 @@ class UserService:
     def create_user(self, username, password, password_confirmation):
         self.validate(username, password, password_confirmation)
 
-        user = self._user_repository.create(
-            User(username, password)
-        )
+        user = self._user_repository.create(User(username, password))
 
         return user
 
@@ -40,7 +36,22 @@ class UserService:
         if not username or not password:
             raise UserInputError("Username and password are required")
 
-        # toteuta loput tarkastukset tänne ja nosta virhe virhetilanteissa
+        if len(username) < 3:
+            raise UserInputError(
+                "Käyttäjätunnuksen tulee olla vähintään 3 merkkiä pitkä"
+            )
+
+        if self._user_repository.find_by_username(username):
+            raise UserInputError("Käyttäjätunnus on jo käytössä")
+
+        if len(password) < 8:
+            raise UserInputError("Salasanan tulee olla vähintään 8 merkkiä pitkä")
+
+        if password.isalpha():
+            raise UserInputError("Salasana ei saa koostua pelkästään kirjaimista")
+
+        if password != password_confirmation:
+            raise UserInputError("Salasanat eivät täsmää")
 
 
 user_service = UserService()
