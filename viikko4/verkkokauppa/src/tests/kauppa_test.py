@@ -125,5 +125,57 @@ class TestKauppa(unittest.TestCase):
             5,  # vain tuote 1
         )
 
+    def test_aloita_asiointi_nollaa_ostoskorin(self):
+        # Ensimmäinen asiointi
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)  # 5e
+
+        # Toinen asiointi – pitää nollata ostoskori
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(2)  # 3e
+
+        self.kauppa.tilimaksu("anne", "00000")
+
+        # Tarkistetaan että hinta on vain 3, ei 8
+        self.pankki_mock.tilisiirto.assert_called_with(
+            "anne", 42, "00000", "33333-44455", 3
+        )
+
+    def test_uusi_viitenumero_joka_maksulle(self):
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("eka", "11111")
+
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.tilimaksu("toka", "22222")
+
+        # kaksi maksua → kaksi viitteen hakua
+        self.assertEqual(self.viitegeneraattori_mock.uusi.call_count, 2)
+
+    def test_poista_korista_kutsuu_varastoa_ja_vahentaa_summaa(self):
+        # Tämä testi nostaa kattavuuden lähelle 100 %
+        # koska poista_korista-metodi ei aiemmin tullut testatuksi
+
+        self.kauppa.aloita_asiointi()
+
+        # varastossa tuote 1 on 10 kpl
+        self.kauppa.lisaa_koriin(1)  # +5
+        self.kauppa.lisaa_koriin(2)  # +3
+
+        # poistetaan tuote 1
+        self.kauppa.poista_korista(1)
+
+        self.kauppa.tilimaksu("teppo", "33333")
+
+        # jäljellä vain tuote 2 → summa = 3
+        self.pankki_mock.tilisiirto.assert_called_with(
+            "teppo", 42, "33333", "33333-44455", 3
+        )
+
+        # Varmistetaan että varasto kutsuttiin palauttamaan tuote 1
+        tuote_1 = self.varasto_mock.hae_tuote(1)
+        self.varasto_mock.palauta_varastoon.assert_called_with(tuote_1)
+
     if __name__ == "__main__":
         unittest.main()
