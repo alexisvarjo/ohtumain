@@ -48,7 +48,7 @@ class Kumoa:
         self._logiikka = logiikka
 
     def suorita(self):
-        pass
+        self._logiikka.kumoa()
 
 
 class Kayttoliittyma:
@@ -110,7 +110,7 @@ class Kayttoliittyma:
         komento_olio = self._komennot[komento]
         komento_olio.suorita()
 
-        # UI-tila
+        # Päivitetään UI
         self._kumoa_painike["state"] = constants.NORMAL
         if self._sovelluslogiikka.arvo() == 0:
             self._nollaus_painike["state"] = constants.DISABLED
