@@ -76,6 +76,10 @@ class QueryBuilder:
     def has_fewer_than(self, value, attr):
         return QueryBuilder(self._matchers + [HasFewerThan(value, attr)])
 
+    def one_of(self, *builder_objects):
+        or_matcher = Or(*[b.build() for b in builder_objects])
+        return QueryBuilder(self._matchers + [or_matcher])
+
     def build(self):
         if len(self._matchers) == 0:
             return All()
